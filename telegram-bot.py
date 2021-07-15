@@ -90,7 +90,7 @@ def whoami(update, context):
     context.bot.send_animation(chat_id=chat_id, animation=URL)
 
 # ======================================== Main ======================================== #
-def main():
+if __name__ == '__main__':
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('img', img))
@@ -101,8 +101,3 @@ def main():
     dp.add_handler(CommandHandler('friend', friend))
     updater.start_polling()
     updater.idle()
-
-#pip install python-telegram-bot --upgrade
-
-if __name__ == '__main__':
-    main()
