@@ -9,7 +9,7 @@ import os
 
 TOKEN = '1844276050:AAENeCJku8ROK_yz-EDd1HqPeQe9N9J1S4I'
 
-# ======================================== Process ======================================== #
+# ======================================== Process Section ======================================== #
 def in4(update, context):
     chat_id = update.message.chat_id
     cpu_usage = psutil.cpu_percent(1)
@@ -18,7 +18,7 @@ def in4(update, context):
     disk_used = psutil.disk_usage('/')
     msg = f"Your CPU: {cpu_usage}% \nYour RAM: {ram_usage}%\nYour Disk: {disk_used[3]}%"
     context.bot.send_message(chat_id=chat_id, text=msg)
-# ======================================== Image, Gif ======================================== #
+# ======================================== Image, Gif Section ======================================== #
 # ========= Huy Parsing ========= #
 # IDK what to do in here, so I put independent
 def get_url():
@@ -70,7 +70,7 @@ def girl(update, context):
     send_img_link = link_img[randint(0, len(link_img)-1)]
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id=chat_id, photo=send_img_link)
-# ======================================== Main ======================================== #
+# ======================================== Main Section ======================================== #
 def main():
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
