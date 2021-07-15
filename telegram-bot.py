@@ -92,12 +92,12 @@ def whoami(update, context):
 # ======================================== Main ======================================== #
 if __name__ == '__main__':
     updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler('img', img))
-    dp.add_handler(CommandHandler('in4', in4))
-    dp.add_handler(CommandHandler('cat', cat))
-    dp.add_handler(CommandHandler('girl', girl))
-    dp.add_handler(CommandHandler('whoami', whoami))
-    dp.add_handler(CommandHandler('friend', friend))
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('img', img))
+    dispatcher.add_handler(CommandHandler('in4', in4))
+    dispatcher.add_handler(CommandHandler('cat', cat))
+    dispatcher.add_handler(CommandHandler('girl', girl))
+    dispatcher.add_handler(CommandHandler('whoami', whoami))
+    dispatcher.add_handler(CommandHandler('friend', friend))
     updater.start_polling()
     updater.idle()
