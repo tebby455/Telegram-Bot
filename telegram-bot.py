@@ -73,9 +73,12 @@ def friend(update, context):
 
 def cat(update, context):
     URL = 'https://www.pinterest.com/luonthuitrongmoihoancanh123/m%C3%A8o/'
-    send_img_link = get_link(URL)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id=chat_id, photo=send_img_link)
+    try:
+        send_img_link = get_link(URL)
+        chat_id = update.message.chat_id
+        context.bot.send_photo(chat_id=chat_id, photo=send_img_link)
+    except:
+        cat(update, context)
 
 def girl(update, context):
     URL = ['https://www.pinterest.com/lockuteni/list-g%C3%A1i-%C4%91%E1%BA%B9p/',
