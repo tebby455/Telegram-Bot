@@ -2,6 +2,7 @@ from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 from telegram.ext.dispatcher import run_async
 from bs4 import BeautifulSoup as soup
 from random import randint
+from requests import get
 import requests
 import psutil
 import re
@@ -26,32 +27,42 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
 
 # ======================================== Process ======================================== #
 def in4(update, context):
+    #Get IP Public
+    IP = get('https://api.ipify.org').text
     chat_id = update.message.chat_id
     cpu_usage = psutil.cpu_percent(1)
     total_memory, used_memory, free_memory = map(int, os.popen('free -t -m').readlines()[-1].split()[1:])
     ram_usage = round((used_memory/total_memory) * 100, 2)
     disk_used = psutil.disk_usage('/')
-    msg = f"Your CPU: {cpu_usage}% \nYour RAM: {ram_usage}%\nYour Disk: {disk_used[3]}%"
+    cmdInbound = 'vnstat -i "enp3s0" -tr 3 | grep rx'
+    cmdOutbound = 'vnstat -i "enp3s0" -tr 3 | grep tx'
+    execInbound = os.popen(cmdInbound).read()
+    execOutbound = os.popen(cmdOutbound).read()
+    resultInbound = re.search(r'([0-9.]{1,} kbit/s).+?([0-9]{1,} packets/s)', execInbound, re.S)
+    resultOutbound = re.search(r'([0-9.]{1,} kbit/s).+?([0-9]{1,} packets/s)', execOutbound, re.S)
+
+    msg = f"📋 Report For {IP} 📋\n\n📢CPU Usage: {cpu_usage}% \n📢RAM Usage: {ram_usage}%\n📢Disk Usage: {disk_used[3]}%\n📢Bandwidth usage:\n\t\t➡️In: {resultInbound.group(1)}\tPPS: {resultInbound.group(2)}\n\t\t⬅️Out: {resultOutbound.group(1)}\tPPS: {resultOutbound.group(2)}"
     context.bot.send_message(chat_id=chat_id, text=msg)
 
 # ======================================== Image, Gif ======================================== #
 # ========= Huy Parsing ========= #
 # IDK what to do in here, so I put independent
-def get_url():
+def get_imgDog():
     contents = requests.get('https://random.dog/woof.json').json()
     url = contents['url']
     return url
 
+#regex get file type
 def get_image_url():
     allowed_extension = ['jpg', 'jpeg', 'png']
     file_extension = ''
     while file_extension not in allowed_extension:
-        url = get_url()
+        url = get_imgDog()
         file_extension = re.search("([^.]*)$", url).group(1).lower()
     return url
 
 @run_async
-def img(update, context):
+def dog(update, context):
     url = get_image_url()
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id=chat_id, photo=url)
@@ -96,7 +107,7 @@ def whoami(update, context):
 if __name__ == '__main__':
     updater = Updater(TOKEN, use_context=True)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler('img', img))
+    dispatcher.add_handler(CommandHandler('dog', dog))
     dispatcher.add_handler(CommandHandler('in4', in4))
     dispatcher.add_handler(CommandHandler('cat', cat))
     dispatcher.add_handler(CommandHandler('girl', girl))
