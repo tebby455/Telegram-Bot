@@ -25,6 +25,11 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
 
+def help(update, context):
+    chat_id = update.message.chat_id
+    help_msg = 'You can control me by sending these commands:\n\nPhotos\n\t/dog - Show photos of dogs\n\t/cat - Show photos of cats\n\t/girl - -Show beautiful girls :D\n\t/friend - Show photos my friends\n\nSpecial:\n\t/whoami - Special video\n\nInformation of machine:\n\t/in4 - Check infor usage\n\nHelp:\n\t/help - For more options'
+    context.bot.send_message(chat_id=chat_id, text=help_msg)
+
 # ======================================== Process ======================================== #
 def in4(update, context):
     #Get IP Public
@@ -107,6 +112,7 @@ def whoami(update, context):
 if __name__ == '__main__':
     updater = Updater(TOKEN, use_context=True)
     dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('help', help))
     dispatcher.add_handler(CommandHandler('dog', dog))
     dispatcher.add_handler(CommandHandler('in4', in4))
     dispatcher.add_handler(CommandHandler('cat', cat))
