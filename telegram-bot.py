@@ -1,6 +1,8 @@
+from telegram import bot
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 from telegram.ext.dispatcher import run_async
 from bs4 import BeautifulSoup as soup
+from functools import wraps
 from random import randint
 from requests import get
 import requests
@@ -25,9 +27,33 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
 
+whitelist_chatID = [1753149166,1458296682]
+def restricted(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id in whitelist_chatID:
+            update.message.reply_text('You are not authorized to use this BOT!')
+            return
+        return func(update, context, *args, **kwargs)
+    return wrapped
+
+
+#@restricted
 def help(update, context):
     chat_id = update.message.chat_id
-    help_msg = 'You can control me by sending these commands:\n\nPhotos\n\t/dog - Show photos of dogs\n\t/cat - Show photos of cats\n\t/girl - -Show beautiful girls :D\n\t/friend - Show photos my friends\n\nSpecial:\n\t/whoami - Special video\n\nInformation of machine:\n\t/in4 - Check infor usage\n\nHelp:\n\t/help - For more options'
+    help_msg = 'You can control me by sending these commands:' \
+               '\n\nPhotos' \
+                   '\n\t/dog - Show photos of dogs' \
+                   '\n\t/cat - Show photos of cats' \
+                   '\n\t/girl - -Show beautiful girls :D' \
+                   '\n\t/friend - Show photos my friends' \
+               '\n\nSpecial:' \
+                   '\n\t/whoami - Special video' \
+               '\n\nInformation of machine:' \
+                   '\n\t/in4 - Check infor usage' \
+               '\n\nHelp:' \
+                   '\n\t/help - For more options'
     context.bot.send_message(chat_id=chat_id, text=help_msg)
 
 # ======================================== Process ======================================== #
