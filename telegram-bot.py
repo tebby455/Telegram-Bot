@@ -46,8 +46,8 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
 
-# def updater():
-#     return sys.exit(os.system('py updater.py'))
+def update(): # Tested on Parrot Security Mate 
+    return sys.exit(os.system('curl https://raw.githubusercontent.com/tebby455/Telegram-Bot/main/updater.py | python3'))
 
 def help(update, context):
     chat_id = update.message.chat_id
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('in4', in4))
     dispatcher.add_handler(CommandHandler('cat', cat))
     dispatcher.add_handler(CommandHandler('girl', girl))
-    # dispatcher.add_handler(CommandHandler('updater', updater))
+    dispatcher.add_handler(CommandHandler('update', update))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
     dispatcher.add_handler(CommandHandler('friend', friend))
     updater.start_polling()
