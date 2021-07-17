@@ -1,21 +1,18 @@
+from functools import wraps
 
 from telegram.ext import Updater, CommandHandler
-import threading
-from logging import shutdown
-from telegram import bot
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 from telegram.ext.dispatcher import run_async
 from bs4 import BeautifulSoup as soup
 from Crypto.Util.Padding import *
 from hashlib import md5, sha256
 from Crypto.Cipher import AES
-from functools import wraps
+from logging import shutdown
 from random import randint
 from requests import get
 from base64 import *
+import threading
 import requests
 import psutil
-import sys
 import re
 import os
 import sys
@@ -54,6 +51,17 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
             link_img.append(img)
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
+
+whitelist_chatID = [1458296682]
+def restricted(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in whitelist_chatID:
+            update.message.reply_text('You are not authorized to use this BOT!')
+            return
+        return func(update, context, *args, **kwargs)
+    return wrapped
 
 def updater():
     sys.exit(os.system('py updater.py'))
