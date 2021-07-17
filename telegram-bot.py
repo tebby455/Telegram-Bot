@@ -42,18 +42,18 @@ def restricted(func):
 #@restricted
 def help(update, context):
     chat_id = update.message.chat_id
-    help_msg = 'You can control me by sending these commands:' \
-               '\n\nPhotos' \
-                   '\n\t/dog - Show photos of dogs' \
-                   '\n\t/cat - Show photos of cats' \
-                   '\n\t/girl - -Show beautiful girls :D' \
-                   '\n\t/friend - Show photos my friends' \
-               '\n\nSpecial:' \
-                   '\n\t/whoami - Special video' \
-               '\n\nInformation of machine:' \
-                   '\n\t/in4 - Check infor usage' \
-               '\n\nHelp:' \
-                   '\n\t/help - For more options'
+    help_msg = 'You can control me by sending these commands:\n\n' \
+               'Photos\n\t' \
+                   '/dog - Show photos of dogs\n\t' \
+                   '/cat - Show photos of cats\n\t' \
+                   '/girl - -Show beautiful girls :D\n\t' \
+                   '/friend - Show photos my friends\n\n' \
+               'Special:\n\t' \
+                   '/whoami - Special video\n\n' \
+               'Information of machine:\n\t' \
+                   '/in4 - Check infor usage\n\n' \
+               'Help:\n\t' \
+                   '/help - For more options'
     context.bot.send_message(chat_id=chat_id, text=help_msg)
 
 # ======================================== Process ======================================== #
