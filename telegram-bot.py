@@ -81,7 +81,7 @@ def in4(update, context):
     resultOutbound = re.search(r'([0-9.]{1,} kbit/s).+?([0-9]{1,} packets/s)', execOutbound, re.S)
 
     msg = f"📋 Report For {IP} 📋\n\n" \
-          f"📢CPU Usage: {cpu_usage}% \n" \
+          f"📢CPU Usage: {cpu_usage}%\n" \
           f"📢RAM Usage: {ram_usage}%\n" \
           f"📢Disk Usage: {disk_used[3]}%\n" \
           f"📢Bandwidth usage:\n\t\t" \
