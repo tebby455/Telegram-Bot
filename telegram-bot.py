@@ -1,18 +1,37 @@
-from telegram import bot
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler
+from telegram.ext import Updater, CommandHandler
 from telegram.ext.dispatcher import run_async
 from bs4 import BeautifulSoup as soup
-from functools import wraps
+from Crypto.Util.Padding import *
+from Crypto.Cipher import AES
+from hashlib import md5, sha1
 from random import randint
 from requests import get
+from base64 import *
 import requests
 import psutil
+import sys
 import re
 import os
 
-TOKEN = '1844276050:AAENeCJku8ROK_yz-EDd1HqPeQe9N9J1S4I'
+ENCRYPTED_TOKEN = 'o9PMRj9hdSDREOjHK7/+PXhLPkv6G+FgTiyB2oTyIHrtHgiC8XkWEgRO8eqrX+unoxZZXLYMY7oGdzXRKRezEQ=='
+HASH_KEY = b'\xa6&@\xcf\xde5\xf4\x06\x9e\x07":-D1\x8d'
 
 # ======================================== Function Section ========================================#
+# Security section #
+class AESCipher:
+    def __init__(self, key):
+        self.key = md5(key.encode('utf8')).digest()
+
+    def decrypt(self, data):
+        raw = b64decode(data)
+        self.cipher = AES.new(self.key, AES.MODE_CBC, raw[:AES.block_size])
+        return unpad(self.cipher.decrypt(raw[AES.block_size:]), AES.block_size)
+
+def hashing(user_input):
+    sha_hash = sha1(user_input.encode('UTF-8')).hexdigest().encode('UTF-8')
+    return md5(sha_hash).digest()
+# End Security Section #
+
 def get_link(URL): # From pinterest and weheartit, if other, will add more in if else section
     link_img = []
     html = requests.get(URL).text
@@ -27,33 +46,22 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
 
-whitelist_chatID = [1753149166,1458296682]
-def restricted(func):
-    @wraps(func)
-    def wrapped(update, context, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id in whitelist_chatID:
-            update.message.reply_text('You are not authorized to use this BOT!')
-            return
-        return func(update, context, *args, **kwargs)
-    return wrapped
+# def updater():
+#     return sys.exit(os.system('py updater.py'))
 
-
-#@restricted
 def help(update, context):
     chat_id = update.message.chat_id
-    help_msg = 'You can control me by sending these commands:' \
-               '\n\nPhotos' \
-                   '\n\t/dog - Show photos of dogs' \
-                   '\n\t/cat - Show photos of cats' \
-                   '\n\t/girl - -Show beautiful girls :D' \
-                   '\n\t/friend - Show photos my friends' \
-               '\n\nSpecial:' \
-                   '\n\t/whoami - Special video' \
-               '\n\nInformation of machine:' \
-                   '\n\t/in4 - Check infor usage' \
-               '\n\nHelp:' \
-                   '\n\t/help - For more options'
+    help_msg = 'You can control me by sending these commands:\n\n' \
+               'Photos\n\t/dog - Show photos of dogs\n\t' \
+               '/cat - Show photos of cats\n\t' \
+               '/girl - -Show beautiful girls :D\n\t' \
+               '/friend - Show photos my friends\n\n' \
+               'Special:\n\t' \
+               '/whoami - Special video\n\n' \
+               'Information of machine:\n\t' \
+               '/in4 - Check infor usage\n\n' \
+               'Help:\n\t' \
+               '/help - For more options'
     context.bot.send_message(chat_id=chat_id, text=help_msg)
 
 # ======================================== Process ======================================== #
@@ -72,7 +80,15 @@ def in4(update, context):
     resultInbound = re.search(r'([0-9.]{1,} kbit/s).+?([0-9]{1,} packets/s)', execInbound, re.S)
     resultOutbound = re.search(r'([0-9.]{1,} kbit/s).+?([0-9]{1,} packets/s)', execOutbound, re.S)
 
-    msg = f"📋 Report For {IP} 📋\n\n📢CPU Usage: {cpu_usage}% \n📢RAM Usage: {ram_usage}%\n📢Disk Usage: {disk_used[3]}%\n📢Bandwidth usage:\n\t\t➡️In: {resultInbound.group(1)}\tPPS: {resultInbound.group(2)}\n\t\t⬅️Out: {resultOutbound.group(1)}\tPPS: {resultOutbound.group(2)}"
+    msg = f"📋 Report For {IP} 📋\n\n" \
+          f"📢CPU Usage: {cpu_usage}% \n" \
+          f"📢RAM Usage: {ram_usage}%\n" \
+          f"📢Disk Usage: {disk_used[3]}%\n" \
+          f"📢Bandwidth usage:\n\t\t" \
+          f"➡️In: {resultInbound.group(1)}\t" \
+          f"PPS: {resultInbound.group(2)}\n\t\t" \
+          f"⬅️Out: {resultOutbound.group(1)}\t" \
+          f"PPS: {resultOutbound.group(2)}"
     context.bot.send_message(chat_id=chat_id, text=msg)
 
 # ======================================== Image, Gif ======================================== #
@@ -85,6 +101,7 @@ def get_imgDog():
 
 #regex get file type
 def get_image_url():
+    url = ''
     allowed_extension = ['jpg', 'jpeg', 'png']
     file_extension = ''
     while file_extension not in allowed_extension:
@@ -136,13 +153,19 @@ def whoami(update, context):
 
 # ======================================== Main ======================================== #
 if __name__ == '__main__':
-    updater = Updater(TOKEN, use_context=True)
+    user_input = input('[*] Enter security key: ')
+    user_key_hash = hashing(user_input)
+    if not user_key_hash == HASH_KEY:
+        sys.exit('[-] Wrong key! Terminated.')
+    token = AESCipher(user_input).decrypt(ENCRYPTED_TOKEN).decode('UTF-8')
+    updater = Updater(token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('help', help))
     dispatcher.add_handler(CommandHandler('dog', dog))
     dispatcher.add_handler(CommandHandler('in4', in4))
     dispatcher.add_handler(CommandHandler('cat', cat))
     dispatcher.add_handler(CommandHandler('girl', girl))
+    # dispatcher.add_handler(CommandHandler('updater', updater))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
     dispatcher.add_handler(CommandHandler('friend', friend))
     updater.start_polling()
