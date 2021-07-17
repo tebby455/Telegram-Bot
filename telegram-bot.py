@@ -1,3 +1,6 @@
+import threading
+from logging import shutdown
+
 from telegram import bot
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler
 from telegram.ext.dispatcher import run_async
@@ -9,6 +12,7 @@ import requests
 import psutil
 import re
 import os
+import sys
 
 TOKEN = '1844276050:AAENeCJku8ROK_yz-EDd1HqPeQe9N9J1S4I'
 
@@ -27,12 +31,12 @@ def get_link(URL): # From pinterest and weheartit, if other, will add more in if
     send_img_link = link_img[randint(0, len(link_img)-1)]
     return send_img_link
 
-whitelist_chatID = [1753149166,1458296682]
+whitelist_chatID = [1458296682]
 def restricted(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
-        if user_id in whitelist_chatID:
+        if user_id not in whitelist_chatID:
             update.message.reply_text('You are not authorized to use this BOT!')
             return
         return func(update, context, *args, **kwargs)
@@ -56,7 +60,23 @@ def help(update, context):
                    '/help - For more options'
     context.bot.send_message(chat_id=chat_id, text=help_msg)
 
+def shutdown():
+    updater.stop()
+    updater.is_idle = False
+
+def alive():
+    updater.start()
+    updater.is_idle = True
+
+def stop(bot, update):
+    threading.Thread(target=shutdown).start()
+
+def start(bot, update):
+    threading.Thread(target=alive).start()
+
+
 # ======================================== Process ======================================== #
+@restricted
 def in4(update, context):
     #Get IP Public
     IP = get('https://api.ipify.org').text
@@ -145,5 +165,6 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('girl', girl))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
     dispatcher.add_handler(CommandHandler('friend', friend))
+    updater.dispatcher.add_handler(CommandHandler('stop', stop))
     updater.start_polling()
     updater.idle()
