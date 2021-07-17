@@ -2,8 +2,8 @@ from telegram.ext import Updater, CommandHandler
 from telegram.ext.dispatcher import run_async
 from bs4 import BeautifulSoup as soup
 from Crypto.Util.Padding import *
+from hashlib import md5, sha256
 from Crypto.Cipher import AES
-from hashlib import md5, sha1
 from random import randint
 from requests import get
 from base64 import *
@@ -14,7 +14,7 @@ import re
 import os
 
 ENCRYPTED_TOKEN = 'o9PMRj9hdSDREOjHK7/+PXhLPkv6G+FgTiyB2oTyIHrtHgiC8XkWEgRO8eqrX+unoxZZXLYMY7oGdzXRKRezEQ=='
-HASH_KEY = b'\xa6&@\xcf\xde5\xf4\x06\x9e\x07":-D1\x8d'
+HASH_KEY = b'cad8b4f465e7c111d4a7c598aafdbb157fb6c7eeb319062e309b1bf4faa8d9ef'
 
 # ======================================== Function Section ========================================#
 # Security section #
@@ -27,9 +27,9 @@ class AESCipher:
         self.cipher = AES.new(self.key, AES.MODE_CBC, raw[:AES.block_size])
         return unpad(self.cipher.decrypt(raw[AES.block_size:]), AES.block_size)
 
-def hashing(user_input):
-    sha_hash = sha1(user_input.encode('UTF-8')).hexdigest().encode('UTF-8')
-    return md5(sha_hash).digest()
+def hashing(data):
+    sha_hash = sha256(data).hexdigest().encode('UTF-8')
+    return sha_hash
 # End Security Section #
 
 def get_link(URL): # From pinterest and weheartit, if other, will add more in if else section
@@ -154,7 +154,7 @@ def whoami(update, context):
 # ======================================== Main ======================================== #
 if __name__ == '__main__':
     user_input = input('[*] Enter security key: ')
-    user_key_hash = hashing(user_input)
+    user_key_hash = hashing(user_input.encode('UTF-8'))
     if not user_key_hash == HASH_KEY:
         sys.exit('[-] Wrong key! Terminated.')
     token = AESCipher(user_input).decrypt(ENCRYPTED_TOKEN).decode('UTF-8')
